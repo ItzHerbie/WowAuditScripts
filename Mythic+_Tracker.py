@@ -14,7 +14,7 @@ REQUIRED_DUNGEON_OPTION_VALUE = 662
 
 # Discord Webhook URL
 # IMPORTANT: This is now retrieved from a GitHub Secret named DISCORD_WEBHOOK_URL.
-DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
+DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL_DEV_TESTING')
 
 # Path to the Discord ID mapping file
 DISCORD_ID_MAP_FILE = 'discord_id_map.json'
@@ -327,32 +327,40 @@ def main():
             report_player = True
             status_details = None
 
-            # Determine if the player needs to be reported and their status
-            if dungeon_vault_option and \
-               dungeon_vault_option.get("option_1") == REQUIRED_DUNGEON_OPTION_VALUE and \
-               dungeon_vault_option.get("option_2") == REQUIRED_DUNGEON_OPTION_VALUE:
-                # Player met the full requirement, do not report
-                report_player = False
-            else:
-                # Player did NOT meet the full requirement, report them
-                report_player = True
+# Determine if the player needs to be reported and their status
+if dungeon_vault_option and \
+   dungeon_vault_option.get("option_1") == REQUIRED_DUNGEON_OPTION_VALUE and \
+   dungeon_vault_option.get("option_2") == REQUIRED_DUNGEON_OPTION_VALUE and \
+   dungeon_vault_option.get("option_3") == REQUIRED_DUNGEON_OPTION_VALUE:
+    # Player met the full requirement, do not report
+    report_player = False
+else:
+    # Player did NOT meet the full requirement, report them
+    report_player = True
 
-                if dungeon_vault_option and dungeon_vault_option.get("option_1") == REQUIRED_DUNGEON_OPTION_VALUE:
-                    # Option 1 is met, but option 2 is not (or is None)
-                    status_details = "Mangler 1 vault slot"
-                else:
-                    # Neither option 1 nor option 2 is met (or dungeons object missing/options are None)
-                    status_details = "Mangler 2 vault slots"
+    # Count how many vault slots are missing
+    missing_slots = 0
+    for option in ("option_1", "option_2", "option_3"):
+        if dungeon_vault_option.get(option) != REQUIRED_DUNGEON_OPTION_VALUE:
+            missing_slots += 1
 
-            if report_player:
-                players_to_report.append({
-                    "PlayerName": name,
-                    "DungeonVaultStatus": status_details
-                })
+    # Set status based on number of missing vault slots
+    if missing_slots == 1:
+        status_details = "Missing 1 vault slot"
+    elif missing_slots == 2:
+        status_details = "Missing 2 vault slots"
+    else:
+        status_details = "Missing all 3 vault slots"
 
-        print(f"DEBUG: Found {len(players_to_report)} players who do NOT have 'dungeons' vault option_1 and option_2 both set to {REQUIRED_DUNGEON_OPTION_VALUE}.")
+if report_player:
+    players_to_report.append({
+        "PlayerName": name,
+        "DungeonVaultStatus": status_details
+    })
 
-        print(f"\nPlayers who do NOT have 'dungeons' vault option_1 and option_2 both set to {REQUIRED_DUNGEON_OPTION_VALUE} (Console Output):")
+        print(f"DEBUG: Found {len(players_to_report)} players who do NOT have 'dungeons' vault option_1 and option_2 and option_3 set to {REQUIRED_DUNGEON_OPTION_VALUE}.")
+
+        print(f"\nPlayers who do NOT have 'dungeons' vault option_1 and option_2 and option_3 set to {REQUIRED_DUNGEON_OPTION_VALUE} (Console Output):")
         if players_to_report:
             for player in players_to_report:
                 print(f"Player: {player['PlayerName']}")
@@ -369,10 +377,10 @@ def main():
             # Customize embed title and initial description based on PERIOD_TYPE
             if PERIOD_TYPE == 'previous':
                 embed_title = "M+ Requirement"
-                initial_description = ":warning:Følgende spillere nåede ikke deres m+ mål i sidste uge:\n\n"
+                initial_description = ":warning:The following players did not reach their m+ goals this week\n\n"
             else: # Default to 'current'
                 embed_title = "M+ Requirement"
-                initial_description = ":warning:Følgende spillere mangler forsat at klare deres m+ requirement inden reset:\n\n"
+                initial_description = ":warning:The following players still need to meet their m+ requirement before reset\n\n"
 
             embed_description = initial_description
 
@@ -415,9 +423,9 @@ def main():
                 embed_color = 15548997 # Red color (decimal) for incomplete
             else:
                 if PERIOD_TYPE == 'previous':
-                    embed_description = "Alle spillere nåede deres m+ mål i sidste uge. Godt arbejde!"
+                    embed_description = "All players reached their m+ goals last week. Good job!"
                 else: # Default to 'current'
-                    embed_description = "Alle spillere har klaret deres m+ requirement inden reset. Godt arbejde!"
+                    embed_description = "All players have passed their m+ requirement before the reset. Good job!"
                 embed_color = 3066993 # Green color (decimal) for complete
                 # Thumbnail is already set to 'complete' icon above
 
