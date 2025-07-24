@@ -9,7 +9,7 @@ GOOGLE_SHEET_KEY = os.environ["GOOGLE_SHEET_KEY"]
 SHEET_GID = "0"  # GID for "Overview" tab
 DISCORD_WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL_DEV_TESTING"]
 DISCORD_ROLE_ID = os.environ["DISCORD_ROLE_ID_OFFICER"]
-CREDS_FILE = "GOOGLE_CREDS_JSON"
+CREDS_FILE = os.environ["GOOGLE_CREDS_JSON"]
 
 # --- AUTHENTICATE ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
