@@ -13,7 +13,7 @@ CREDS_FILE = os.environ["GOOGLE_CREDS_JSON"]
 
 # --- AUTHENTICATE ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name(GOOGLE_CREDS_JSON, scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, scope)
 client = gspread.authorize(creds)
 sheet = client.open_by_key(GOOGLE_SHEET_KEY).worksheet("Overview")
 
